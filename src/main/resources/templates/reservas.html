@@ -1,0 +1,208 @@
+<html layout:decorate="_layout">
+    <head>
+        <title>Gestión de reservaciones</title>
+    </head>
+    <body>
+        <div layout:fragment="content" id="app">
+            
+            <h1>Gestión de reservaciones</h1>
+            <div>Selecciona la fecha de entrada</div>
+              <div class="form-group">
+            <input type="text" class="form-control" id="datepicker" placeholder="Select a date">
+              </div>
+            <!-- Selector de pisos -->
+            <div>Selecciona la fecha de salida</div>
+            
+            <div><input type="text" class="form-control" id="datepicker" placeholder="Select a date">
+            </div>
+            <div>Selecciona el tipo de habitacion</div>
+            <div class="mb-3">
+                <label for="piso" class="form-label">Seleccionar Piso:</label>
+                <select v-model="nombres" id="piso" class="form-select">
+                    <option value="individual">invidual</option>
+                    <option value="matrimonial">matrimonial</option>
+                    <option value="habitacion doble">habitacion doble</option>
+                    <option value="twin">twin</option>
+                    <option value="Suite">Suite</option>
+                </select>
+            </div>
+            <div class="mb-3">
+                <label for="caracteristica" class="form-label">Selecciona caracteristica</label>
+                <select v-model="nombres" id="piso" class="form-select">
+                    <option value="Normal">Normal</option>
+                    <option value="con vista">con vista</option>
+                    <option value="on balcón">con balcón</option>
+                    </select>
+            </div>
+            <button class="btn btn-primary mb-3" @click="buscar">Buscar</button>
+            <p class="text-end">
+                <button class="btn btn-primary" @click="nuevo">Nuevo</button>
+            </p>
+
+            <!-- Tabla para listar habitaciones -->
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Piso</th>
+                        <th>Número</th>
+                        <th>Tipo</th>
+                        <th>Caracteristica</th>
+                        <th>Precio</th>
+                        <th>Disponibilidad</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr v-for="item in entidades" :key="item.id">
+                        <td>{{ item.piso }}</td>
+                        <td>{{ item.numdehab }}</td>
+                        <td>{{ item.tipo }}</td>
+                        <td>{{ item.caracteristica }}</td>
+                        <td>{{ item.precio }}</td>
+                        <td>
+                            {{ item.disponibilidad ? 'Sí' : 'No' }}
+                                </td>
+                                <td>
+                            <button v-if="item.disponibilidad" class="btn btn-success btn-sm ms-2" @click="reservar(item.id)">
+                                Reservar
+                            </button>
+                     </td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <!-- Modales -->
+            <div class="modal" tabindex="-1" id="mdlEntidad">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" v-if="entidad.id === 0">Nuevo</h5>
+                            <h5 class="modal-title" v-if="entidad.id !== 0">Editar</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="mb-3">
+                                <label for="piso" class="form-label">Piso</label>
+                                <input class="form-control" id="piso" v-model="entidad.piso" />
+                            </div>
+                            <div class="mb-3">
+                                <label for="numdehab" class="form-label">Número de Habitación</label>
+                                <input class="form-control" id="numdehab" v-model="entidad.numdehab" />
+                            </div>
+                            <div class="mb-3">
+                                <label for="tipo" class="form-label">Tipo</label>
+                                <input class="form-control" id="tipo" v-model="entidad.tipo" />
+                            </div>
+                            <div class="mb-3">
+                                <label for="precio" class="form-label">Precio</label>
+                                <input class="form-control" id="precio" v-model="entidad.precio" />
+                            </div>
+                            <div class="mb-3">
+                            <label for="caracteristica" class="form-label">Selecciona caracteristica</label>
+                              <select v-model="nombres" id="piso" class="form-select">
+                                 <option value="Normal">Normal</option>
+                                 <option value="con vista">con vista</option>
+                                  <option value="on balcón">con balcón</option>
+                              </select>
+                              </div>
+                            <div class="mb-3">
+                                <label for="disponibilidad" class="form-label">Disponibilidad</label>
+                                <input class="form-control" id="disponibilidad" v-model="entidad.disponibilidad" />
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button class="btn btn-primary" v-if="entidad.id === 0" @click="guardar">Guardar</button>
+                            <button class="btn btn-primary" v-if="entidad.id !== 0" @click="actualizar">Actualizar</button>
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="modal" tabindex="-1" id="mdlEliminar">
+                <div class="modal-dialog modal-sm">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Eliminar</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            ¿Estás seguro que quieres eliminar?
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-danger" @click="confimareliminacion">Eliminar</button>
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script layout:fragment="script">
+            new Vue({
+               el: "#app",
+                data: {
+                    entidades: [],
+                    entidad: []
+                },
+                methods: {
+                    listar: function () {
+                        this.$http.get('/api/reserva').then(response => {
+                            this.entidades = response.data;
+                        });
+                    },
+                    buscar: function () {
+                        this.$http.get('/api/reserva?piso=' + this.nombres).then(response => {
+                            this.entidades = response.data;
+                        });
+                    },
+                    nuevo: function () {
+                        this.entidad = {
+                           id: 0,
+                        estado: "",
+                        fechaentra: "",
+                        fechasalida: "",
+                        producto: "",
+                        cliente: ""
+                        };
+                        $("#mdlEntidad").modal("show");
+                    },
+                    editar: function (id) {
+                        this.$http.get('/api/reserva/' + id).then(response => {
+                            this.entidad = response.data;
+                            $("#mdlEntidad").modal("show");
+                        });
+                    },
+                    guardar: function () {
+                        this.$http.post('/api/reserva', this.entidad).then(response => {
+                            this.listar();
+                            $("#mdlEntidad").modal("hide");
+                        });
+                    },
+                    actualizar: function () {
+                        this.$http.put('/api/reserva/' + this.entidad.id, this.entidad).then(response => {
+                            this.listar();
+                            $("#mdlEntidad").modal("hide");
+                        });
+                    },
+                    eliminar: function (id) {
+                        this.entidad.id = id;
+                        $("#mdlEliminar").modal("show");
+                    },
+                    confimareliminacion: function () {
+                        this.$http.delete('/api/reserva/' + this.entidad.id).then(response => {
+                            this.listar();
+                            $("#mdlEliminar").modal("hide");
+                        });
+                    },
+                    reservar: function (id) {
+                        alert("Se selecciono " + id + " para la reserva");
+                        // Aquí puedes añadir lógica adicional para reservar
+                    }
+                },
+                mounted: function () {
+                    this.listar();
+                }
+            });
+        </script>
+    </body>
+</html>

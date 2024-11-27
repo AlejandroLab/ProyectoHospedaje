@@ -1,0 +1,87 @@
+<html layout:decorate="_layout">
+    <head>
+        <title>Inicio de Sesión</title>
+    </head>
+    <body>
+        <div layout:fragment="content" id="app" class="container mt-5">
+            <h1 class="text-center mb-4">Iniciar Sesión</h1>
+            <div class="card p-4">
+                <form @submit.prevent="iniciarSesion">
+                    <div class="mb-3">
+                        <label for="usuario" class="form-label">Coloca tu correo electronico</label>
+                        <label>{entidad.nombreuser.idempleado.idnombre}</label>
+                        <input 
+                            type="text" 
+                            id="correo" 
+                            class="form-control" 
+                            v-model="entidad.nombreuser" 
+                            placeholder="Ingrese su usuario" 
+                            required
+                        >
+                    </div>
+                    <div class="mb-3">
+                        <label for="contrasena" class="form-label">Contraseña</label>
+                        <input 
+                            type="password" 
+                            id="contrasena" 
+                            class="form-control" 
+                            v-model="entidad.contraseña" 
+                            placeholder="Ingrese su contraseña" 
+                            required
+                        >
+                    </div>
+                    <div class="d-grid gap-2">
+                        <button @click="autenticar"type="submit" class="btn btn-primary">Ingresar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+             <script layout:fragment="script">
+    new Vue({
+        el: "#app",
+        data: {
+            entidades: [], // Aquí podrías cargar usuarios existentes para validación
+            entidad: { nombreuser: "", contraseña: "" },
+            usuarios: [ // Lista de usuarios de ejemplo
+                { nombreuser: "admin", contraseña: "1234" },
+                { nombreuser: "user", contraseña: "abcd" }
+            ]
+        },
+        methods: {
+            ingresar: function () {
+                this.entidad.nombreuser = "";
+                this.entidad.contraseña = "";
+                $("#mdlIngresar").modal("show");
+            },
+            autenticar: function () {
+                // Buscar un usuario que coincida con los datos ingresados
+                const usuarioValido = this.usuarios.find(usuario => 
+                    usuario.nombreuser === this.entidad.nombreuser &&
+                    usuario.contraseña === this.entidad.contraseña
+                );
+
+                if (usuarioValido) {
+                    // Redirigir al usuario a otro HTML
+                    window.location.href = "home.html";
+                } else {
+                    // Mostrar un mensaje de error si las credenciales no son válidas
+                    alert("Usuario o contraseña incorrectos");
+                }
+            },
+            confimareliminacion: function () {
+                this.$http.delete('/api/usuarios/' + this.entidad.id).then(response => {
+                    this.listar();
+                    $("#mdlEliminar").modal("hide");
+                });
+            },
+            listar: function () {
+            }
+        },
+        mounted: function () {
+            this.listar();
+        }
+    });
+</script>
+    </body>
+</html>
+       
